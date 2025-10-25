@@ -3,45 +3,18 @@ package org.example;
 import java.util.Random;
 
 public class ArtificialNeuronCell{
-
-    private double numberOfRooms;
-    private double distance;
-    private double buildingYear;
-
     private double target;
     private double output;
     private double WEIGHT_OF_LEARN = 0.05;
 
-    private double sigmoidsV;
-
     private Random random = new Random();
 
     private double[] weights = new double[3];
-    private double[] inputs = new double[]{ numberOfRooms, distance, buildingYear};
 
     /**   ----------- CONSTRUCTORS -----------   **/
 
-    // AllArgsConstructor
-    public ArtificialNeuronCell(double numberOfRooms, double distance, double buildingYear){
-        setNumberOfRooms(numberOfRooms);
-        setDistance(distance);
-        setBuildingYear(buildingYear);
-        updateInputsList();
-
-        // set weights as 1 or -1 randomly before starting
-        for (int i = 0; i<weights.length; i++){
-            double randomForWeight = random.nextBoolean() ? 1.0 : -(1.0); //if result true return 1 else -1
-            weights[i] = randomForWeight;
-        }
-    }
-
     // NoArgsConstructor
     public ArtificialNeuronCell(){
-        setNumberOfRooms(1.0);
-        setDistance(0.0);
-        setBuildingYear(2000);
-        updateInputsList();
-
         // set weights as 1 or -1 randomly before starting
         for (int i = 0; i<weights.length; i++){
             double randomForWeight = random.nextBoolean() ? 1.0 : -(1.0); //if result true return 1 else -1
@@ -49,21 +22,14 @@ public class ArtificialNeuronCell{
         }
     }
 
-    /**
-     *
-     *
-     *
-     * FOR READIBILITY AND BETTER CLASSIFICATION OF OPERATION WRITE THESE METHODS BELOW:
-     * -------------------------------
-     * predictRent(inputs)
-     * trainBack(inputs, target)
-     *
-     *
-     *
-     * **/
-
-
     /**   ----------- CALCULATOR MAIN METHODS -----------   **/
+
+    // This function just predicts the rent
+    public double predictRent(double numberOfRooms, double distance, double buildingYear){
+        double vForSigmoid = numberOfRooms*weights[0] + distance*weights[1] + buildingYear*weights[2];
+
+        return sigmoid(vForSigmoid);
+    }
 
     // second calculation operation before updating weights and return output for optimizing weights
     public double sigmoid(double v){
@@ -72,67 +38,22 @@ public class ArtificialNeuronCell{
         return output;
     }
 
-    // first calculation operation before sigmoid to extraxt v
-    public double calculateV(double numberOfRooms, double distance, double buildingYear, double target){
+    // After predicting output, this function updates weights for better outputs by the difference of target and output and inputs
+    public void trainBack(double numberOfRooms, double distance, double buildingYear, double target){
+        predictRent(numberOfRooms,distance,buildingYear);
 
-        // calculate v for sigmoid function
-        double vForSigmoid = numberOfRooms*weights[0] + distance*weights[1] + buildingYear*weights[2];
-        // set target for update weights
         setTarget(target);
-        // set output after sigmoid function
-        sigmoid(vForSigmoid);
-        // after setting of target and output values update weights for better results and optimizing
-        updateWeights();
-        // set v for sigmoid function (it may be unneccessary I will decide.)
-        setSigmoidsV(vForSigmoid);
 
-        return vForSigmoid;
-    }
+        double[] currentInputs = new double[]{numberOfRooms,distance,buildingYear};
 
-    // third and last operation to update weights and optimize outputs of function
-    // for more accurate output values
-    private void updateWeights(){
-        for (int i = 0; i<weights.length; i++){
-            weights[i] += WEIGHT_OF_LEARN * (getTarget() - getOutput()) * inputs[i];
+        for (int i = 0; i < weights.length; i++){
+            // 'inputs[i]' (yanlış olan) yerine 'currentInputs[i]' (doğru olan) kullanılıyor.
+            weights[i] += WEIGHT_OF_LEARN * (getTarget() - getOutput()) * currentInputs[i];
         }
     }
 
 
-    /**   ----------- HELPER METHODS -----------   **/
-
-    private void updateInputsList(){
-        inputs[0] = getnumberOfRooms();
-        inputs[1] = getDistance();
-        inputs[2] = getBuildingYear();
-    }
-
-
     /**   -----------  GETTER and SETTER METHODS  -----------   **/
-
-    public double getnumberOfRooms() {
-        return numberOfRooms;
-    }
-
-    public void setNumberOfRooms(double numberOfRooms) {
-        this.numberOfRooms = numberOfRooms;
-    }
-
-    public double getDistance() {
-        return distance;
-    }
-
-    public void setDistance(double distance) {
-        this.distance = distance;
-    }
-
-    public double getBuildingYear() {
-        return buildingYear;
-    }
-
-    public void setBuildingYear(double buildingYear) {
-        this.buildingYear = buildingYear;
-    }
-
     public double getWeight1() {
         return weights[0];
     }
@@ -181,11 +102,4 @@ public class ArtificialNeuronCell{
         this.WEIGHT_OF_LEARN = weightOfLearn;
     }
 
-    public double getSigmoidsV() {
-        return sigmoidsV;
-    }
-
-    public void setSigmoidsV(double sigmoidsV) {
-        this.sigmoidsV = sigmoidsV;
-    }
 }
